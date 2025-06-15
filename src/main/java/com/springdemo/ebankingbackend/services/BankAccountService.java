@@ -1,9 +1,6 @@
 package com.springdemo.ebankingbackend.services;
 
-import com.springdemo.ebankingbackend.dtos.BankAccountDTO;
-import com.springdemo.ebankingbackend.dtos.CurrentBankAccountDTO;
-import com.springdemo.ebankingbackend.dtos.CustomerDTO;
-import com.springdemo.ebankingbackend.dtos.SavingBankAccountDTO;
+import com.springdemo.ebankingbackend.dtos.*;
 import com.springdemo.ebankingbackend.entities.BankAccount;
 import com.springdemo.ebankingbackend.entities.CurrentAccount;
 import com.springdemo.ebankingbackend.entities.Customer;
@@ -28,4 +25,8 @@ public interface BankAccountService {
     CustomerDTO updateCustomer(CustomerDTO customerDTO);
 
     void deleteCustomer(Long customerId);
+
+    List<AccountOperationDTO> accountHistory(String accountId);
+
+    AccountHistoryDTO getAccountHistory(String accountId, int page, int size);
 }

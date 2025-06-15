@@ -1,9 +1,6 @@
 package com.springdemo.ebankingbackend.services;
 
-import com.springdemo.ebankingbackend.dtos.BankAccountDTO;
-import com.springdemo.ebankingbackend.dtos.CurrentBankAccountDTO;
-import com.springdemo.ebankingbackend.dtos.CustomerDTO;
-import com.springdemo.ebankingbackend.dtos.SavingBankAccountDTO;
+import com.springdemo.ebankingbackend.dtos.*;
 import com.springdemo.ebankingbackend.entities.*;
 import com.springdemo.ebankingbackend.enums.OperationType;
 import com.springdemo.ebankingbackend.exceptions.CustomerNotFoundException;
@@ -13,6 +10,8 @@ import com.springdemo.ebankingbackend.repositories.BankAccountRepository;
 import com.springdemo.ebankingbackend.repositories.CustomerRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
 
 @Service
 @Transactional
@@ -173,6 +170,28 @@ public class BankAccountServiceImpl implements BankAccountService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id: " + customerId));
         customerRepository.deleteById(customerId);
+    }
+
+    @Override
+    public List<AccountOperationDTO> accountHistory(String accountId) {
+        List<AccountOperation> accountOperations = accountOperationRepository.findByBankAccountId(accountId);
+        return accountOperations.stream().map(op->dtoMapper.fromAccountOperation(op)).collect(Collectors.toList());
+    }
+
+    @Override
+    public AccountHistoryDTO getAccountHistory(String accountId, int page, int size) {
+        BankAccount bankAccount = bankAccountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Bank account not found with id: " + accountId));
+        Page<AccountOperation> accountOperations = accountOperationRepository.findByBankAccountId(accountId, PageRequest.of(page, size));
+        AccountHistoryDTO accountHistoryDTO = new AccountHistoryDTO();
+        List<AccountOperationDTO> accountOperationDTOS = accountOperations.getContent().stream().map(op->dtoMapper.fromAccountOperation(op)).collect(Collectors.toList());
+        accountHistoryDTO.setAccountOperationDTOS(accountOperationDTOS);
+        accountHistoryDTO.setAccountId(bankAccount.getId());
+        accountHistoryDTO.setBalance(bankAccount.getBalance());
+        accountHistoryDTO.setCurrentPage(page);
+        accountHistoryDTO.setPageSize(size);
+        accountHistoryDTO.setTotalPages(accountOperations.getTotalPages());
+        return accountHistoryDTO;
     }
 
 

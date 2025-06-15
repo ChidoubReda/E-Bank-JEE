@@ -42,25 +42,26 @@ public class EbankingBackendApplication {
                 try {
                     bankAccountService.saveCurrentBankAccount(Math.random() * 90000, 9000, customer.getId());
                     bankAccountService.saveSavingBankAccount(Math.random() * 90000, 5.5, customer.getId());
-                    List<BankAccountDTO> bankAccounts = bankAccountService.bankAccountList();
-                    for (BankAccountDTO bankAccount : bankAccounts) {
-                        for(int i = 0; i < 10; i++) {
-                            String accountId;
-                            if(bankAccount instanceof SavingBankAccountDTO){
-                                accountId = ((SavingBankAccountDTO) bankAccount).getId();
-                            } else {
-                                accountId = ((CurrentBankAccountDTO) bankAccount).getId();
-                            }
-                            bankAccountService.credit(accountId,10000+Math.random() * 12000, "Credit Operation");
-                            bankAccountService.debit(accountId,1000+Math.random() * 9000, "Debit Operation");
-                        }
-                    }
+
                 } catch (Exception e) {
                     System.out.println("Error creating current account for customer " + customer.getName() + ": " + e.getMessage());
                      ;
                 }
 
             });
+            List<BankAccountDTO> bankAccounts = bankAccountService.bankAccountList();
+            for (BankAccountDTO bankAccount : bankAccounts) {
+                for(int i = 0; i < 10; i++) {
+                    String accountId;
+                    if(bankAccount instanceof SavingBankAccountDTO){
+                        accountId = ((SavingBankAccountDTO) bankAccount).getId();
+                    } else {
+                        accountId = ((CurrentBankAccountDTO) bankAccount).getId();
+                    }
+                    bankAccountService.credit(accountId,10000+Math.random() * 12000, "Credit Operation");
+                    bankAccountService.debit(accountId,1000+Math.random() * 9000, "Debit Operation");
+                }
+            }
         };
     }
     //@Bean
